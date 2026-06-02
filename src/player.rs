@@ -134,3 +134,43 @@ fn reset_player(
     avel.0 = 0.0;
     jumps.0 = 2;
 }
+
+pub fn check_goal(
+    player_query: Query<Entity, With<Player>>,
+    goal_query: Query<Entity, With<GoalTile>>,
+    collisions: Res<Collisions>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    let Ok(player) = player_query.get_single() else { return };
+
+    for goal in &goal_query {
+        if collisions.contains(player, goal) {
+            next_state.set(GameState::LevelComplete);
+        }
+    }
+}
+
+pub fn move_platforms(
+    time: Res<Time>,
+    mut query: Query<(&mut Transform, &mut MovingPlatform)>,
+) {
+    for (mut transform, mut platform) in &mut query {
+        if platform.forward {
+            platform.t += platform.speed * time.delta_secs();
+            if platform.t >= 1.0 {
+                platform.t = 1.0;
+                platform.forward = false;
+            }
+        } else {
+            platform.t -= platform.speed * time.delta_secs();
+            if platform.t <= 0.0 {
+                platform.t = 0.0;
+                platform.forward = true;
+            }
+        }
+
+        let pos = platform.start.lerp(platform.end, platform.t);
+        transform.translation.x = pos.x;
+        transform.translation.y = pos.y;
+    }
+}

@@ -120,3 +120,42 @@ pub fn game_over_input(
         next_state.set(GameState::MainMenu);
     }
 }
+
+#[derive(Component)]
+pub struct LevelCompleteItem;
+
+pub fn setup_level_complete(mut commands: Commands) {
+    commands.spawn((
+        LevelCompleteItem,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            row_gap: Val::Px(16.0),
+            ..default()
+        },
+    ))
+    .with_children(|parent| {
+        parent.spawn((
+            Text::new("LEVEL COMPLETE"),
+            TextFont { font_size: 64.0, ..default() },
+            TextColor(Color::srgb(0.2, 0.9, 0.4)),
+        ));
+        parent.spawn((
+            Text::new("Press SPACE for next level"),
+            TextFont { font_size: 24.0, ..default() },
+            TextColor(Color::WHITE),
+        ));
+    });
+}
+
+pub fn level_complete_input(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keys.just_pressed(KeyCode::Space) {
+        next_state.set(GameState::Playing);
+    }
+}

@@ -57,7 +57,7 @@ pub fn setup_main_menu(mut commands: Commands) {
             TextColor(Color::WHITE),
         ));
         parent.spawn((
-            Text::new("A / D — Move     W — Jump     Space — Flip Gravity"),
+            Text::new("A / D or < / > - Move     W or ^ - Jump     Space - Flip Gravity"),
             TextFont { font_size: 14.0, ..default() },
             TextColor(Color::srgb(0.6, 0.6, 0.6)),
         ));
@@ -154,10 +154,10 @@ pub fn setup_level_complete(mut commands: Commands) {
 pub fn level_complete_input(
     keys: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut deaths: ResMut<Deaths>,  // 👈
+    mut deaths: ResMut<Deaths>, 
 ) {
     if keys.just_pressed(KeyCode::Space) {
-        deaths.0 = 0;            // 👈
+        deaths.0 = 0; // reset deaths for the next level
         next_state.set(GameState::Playing);
     }
 }

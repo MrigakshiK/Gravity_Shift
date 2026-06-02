@@ -270,6 +270,40 @@ fn flip_gravity(
     }
 }
 
+fn setup_game_over(
+    mut commands: Commands,
+    deaths: Res<Deaths>,
+) {
+    commands.spawn((
+        GameOverItem,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            row_gap: Val::Px(16.0),
+            ..default()
+        },
+    )).with_children(|parent| {
+        parent.spawn((
+            Text::new("GAME OVER"),
+            TextFont { font_size: 64.0, ..default() },
+            TextColor(Color::srgb(0.9, 0.2, 0.2)),
+        ));
+        parent.spawn((
+            Text::new(format!("Deaths: {}", deaths.0)),
+            TextFont { font_size: 32.0, ..default() },
+            TextColor(Color::WHITE),
+        ));
+        parent.spawn((
+            Text::new("Press R to Retry   |   Press M for Menu"),
+            TextFont { font_size: 20.0, ..default() },
+            TextColor(Color::srgb(0.6, 0.6, 0.6)),
+        ));
+    });
+}
+
 fn respawn_player(
     mut query: Query<(&mut Transform, &mut LinearVelocity, &mut AngularVelocity, &mut JumpCount, &mut VisualRotation), With<Player>>,
     mut deaths: ResMut<Deaths>,

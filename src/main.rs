@@ -127,6 +127,17 @@ fn setup_main_menu(mut commands: Commands) {
     });
 }
 
+fn main_menu_input(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut deaths: ResMut<Deaths>,
+) {
+    if keys.just_pressed(KeyCode::Space) {
+        deaths.0 = 0;  // reset deaths on new game
+        next_state.set(GameState::Playing);
+    }
+}
+
 fn setup(mut commands: Commands) {
     commands.spawn(Camera2d);
 

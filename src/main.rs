@@ -48,8 +48,8 @@ fn main() {
         .add_plugins(PhysicsPlugins::default())
         .insert_resource(Gravity(Vec2::NEG_Y * 1800.0))
         .init_resource::<Deaths>()
-        .init_state::<GameState>()  // 👈
-        .add_systems(Startup, setup_hud)
+        .init_state::<GameState>()
+        .add_systems(Startup, (setup_camera, setup_hud))
         .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
         .add_systems(OnEnter(GameState::Playing), setup)
         .add_systems(OnEnter(GameState::GameOver), setup_game_over)
@@ -59,7 +59,7 @@ fn main() {
         .add_systems(
             Update,
             (move_player, respawn_player, flip_gravity, hazard_death, update_hud, animate_rotation)
-                .run_if(in_state(GameState::Playing)),  // 👈 only run while playing
+                .run_if(in_state(GameState::Playing)),
         )
         .add_systems(
             Update,
@@ -139,8 +139,6 @@ fn main_menu_input(
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2d);
-
     // Physics body — no sprite, no rotation
     commands.spawn((
         Player,
@@ -270,6 +268,10 @@ fn flip_gravity(
     }
 }
 
+fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2d);
+}
+
 fn setup_game_over(
     mut commands: Commands,
     deaths: Res<Deaths>,
@@ -304,20 +306,39 @@ fn setup_game_over(
     });
 }
 
+fn game_over_input(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut deaths: ResMut<Deaths>,
+) {
+    if keys.just_pressed(KeyCode::KeyR) {
+        deaths.0 = 0;
+        next_state.set(GameState::Playing);
+    }
+    if keys.just_pressed(KeyCode::KeyM) {
+        next_state.set(GameState::MainMenu);
+    }
+}
+
 fn respawn_player(
     mut query: Query<(&mut Transform, &mut LinearVelocity, &mut AngularVelocity, &mut JumpCount, &mut VisualRotation), With<Player>>,
     mut deaths: ResMut<Deaths>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     let (mut transform, mut linear_vel, mut angular_vel, mut jump_count, mut rotation) = query.single_mut();
 
     if transform.translation.y.abs() > DEATH_Y {
+        deaths.0 += 1;
+        if deaths.0 >= 10 {
+            next_state.set(GameState::GameOver);
+            return;
+        }
         transform.translation = SPAWN_POS;
         linear_vel.0 = Vec2::ZERO;
         angular_vel.0 = 0.0;
         jump_count.0 = 2;
         rotation.current = 0.0;
         rotation.target = 0.0;
-        deaths.0 += 1;
     }
 }
 
@@ -326,18 +347,23 @@ fn hazard_death(
     hazard_query: Query<Entity, With<Hazard>>,
     collisions: Res<Collisions>,
     mut deaths: ResMut<Deaths>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     let (player_entity, mut transform, mut linear_vel, mut angular_vel, mut jump_count, mut rotation) = player_query.single_mut();
 
     for hazard_entity in &hazard_query {
         if collisions.contains(player_entity, hazard_entity) {
+            deaths.0 += 1;
+            if deaths.0 >= 10 {
+                next_state.set(GameState::GameOver);
+                return;
+            }
             transform.translation = SPAWN_POS;
             linear_vel.0 = Vec2::ZERO;
             angular_vel.0 = 0.0;
             jump_count.0 = 2;
             rotation.current = 0.0;
             rotation.target = 0.0;
-            deaths.0 += 1;
         }
     }
 }

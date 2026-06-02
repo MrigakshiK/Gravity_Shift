@@ -154,8 +154,10 @@ pub fn setup_level_complete(mut commands: Commands) {
 pub fn level_complete_input(
     keys: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
+    mut deaths: ResMut<Deaths>,  // 👈
 ) {
     if keys.just_pressed(KeyCode::Space) {
+        deaths.0 = 0;            // 👈
         next_state.set(GameState::Playing);
     }
 }

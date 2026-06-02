@@ -4,15 +4,6 @@ use bevy::prelude::*;
 pub struct Player;
 
 #[derive(Component)]
-pub struct PlayerSprite;
-
-#[derive(Component)]
-pub struct VisualRotation {
-    pub current: f32,
-    pub target: f32,
-}
-
-#[derive(Component)]
 pub struct Hazard;
 
 #[derive(Component)]

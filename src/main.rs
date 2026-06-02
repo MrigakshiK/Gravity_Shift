@@ -36,7 +36,6 @@ fn main() {
                 player::respawn_player,
                 player::flip_gravity,
                 player::hazard_death,
-                player::animate_rotation,
                 ui::update_hud,
             )
             .run_if(in_state(GameState::Playing)),

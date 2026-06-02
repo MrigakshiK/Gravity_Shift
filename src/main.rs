@@ -25,8 +25,22 @@ struct Deaths(u32);
 #[derive(Component)]
 struct DeathText;
 
+#[derive(Component)]
+struct MenuItem;
+
+#[derive(Component)]
+struct GameOverItem;
+
 const SPAWN_POS: Vec3 = Vec3::new(0.0, 150.0, 0.0);
 const DEATH_Y: f32 = 400.0;
+
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash, Default)]
+enum GameState {
+    #[default]
+    MainMenu,
+    Playing,
+    GameOver,
+}
 
 fn main() {
     App::new()
@@ -34,8 +48,27 @@ fn main() {
         .add_plugins(PhysicsPlugins::default())
         .insert_resource(Gravity(Vec2::NEG_Y * 1800.0))
         .init_resource::<Deaths>()
-        .add_systems(Startup, (setup, setup_hud))
-        .add_systems(Update, (move_player, respawn_player, flip_gravity, hazard_death, update_hud, animate_rotation))
+        .init_state::<GameState>()  // 👈
+        .add_systems(Startup, setup_hud)
+        .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
+        .add_systems(OnEnter(GameState::Playing), setup)
+        .add_systems(OnEnter(GameState::GameOver), setup_game_over)
+        .add_systems(OnExit(GameState::MainMenu), cleanup::<MenuItem>)
+        .add_systems(OnExit(GameState::Playing), cleanup::<Player>)
+        .add_systems(OnExit(GameState::GameOver), cleanup::<GameOverItem>)
+        .add_systems(
+            Update,
+            (move_player, respawn_player, flip_gravity, hazard_death, update_hud, animate_rotation)
+                .run_if(in_state(GameState::Playing)),  // 👈 only run while playing
+        )
+        .add_systems(
+            Update,
+            main_menu_input.run_if(in_state(GameState::MainMenu)),
+        )
+        .add_systems(
+            Update,
+            game_over_input.run_if(in_state(GameState::GameOver)),
+        )
         .run();
 }
 
@@ -52,6 +85,46 @@ fn setup_hud(mut commands: Commands) {
             ..default()
         },
     ));
+}
+
+fn cleanup<T: Component>(
+    mut commands: Commands,
+    query: Query<Entity, With<T>>,
+) {
+    for entity in &query {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn setup_main_menu(mut commands: Commands) {
+    commands.spawn((
+        MenuItem,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            flex_direction: FlexDirection::Column,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            row_gap: Val::Px(16.0),
+            ..default()
+        },
+    )).with_children(|parent| {
+        parent.spawn((
+            Text::new("GRAVITY SHIFT"),
+            TextFont { font_size: 64.0, ..default() },
+            TextColor(Color::srgb(0.5, 0.4, 0.9)),
+        ));
+        parent.spawn((
+            Text::new("Press SPACE to Play"),
+            TextFont { font_size: 24.0, ..default() },
+            TextColor(Color::WHITE),
+        ));
+        parent.spawn((
+            Text::new("A/D or Arrow Keys — Move    W or Up — Jump    Space — Flip Gravity"),
+            TextFont { font_size: 14.0, ..default() },
+            TextColor(Color::srgb(0.6, 0.6, 0.6)),
+        ));
+    });
 }
 
 fn setup(mut commands: Commands) {

@@ -3,7 +3,6 @@
 A 2D precision platformer built in Rust using the [Bevy](https://bevyengine.org/) game engine. Flip gravity to navigate hazards, ride moving platforms, and reach the goal tile across three increasingly difficult levels.
 
 ![Gameplay](assets/demo.gif)
-> *Replace with a screen recording — on macOS: QuickTime → File → New Screen Recording, crop to the window, convert with `ffmpeg -i demo.mov -vf "fps=15,scale=640:-1" demo.gif`*
 
 ---
 

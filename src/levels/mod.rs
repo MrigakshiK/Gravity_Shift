@@ -1,4 +1,6 @@
 pub mod level1;
+pub mod level2;
+pub mod level3;
 
 use avian2d::prelude::*;
 use bevy::prelude::*;

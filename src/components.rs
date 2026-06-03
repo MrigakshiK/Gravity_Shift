@@ -22,6 +22,9 @@ pub struct MenuItem;
 pub struct CurrentLevel(pub usize);  // 0-indexed
 
 #[derive(Component)]
+pub struct LevelCompleteItem;
+
+#[derive(Component)]
 pub struct LevelSelectItem;
 
 #[derive(Component)]

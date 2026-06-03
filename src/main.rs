@@ -10,7 +10,7 @@ use bevy::prelude::*;
 use components::*;
 use state::GameState;
 use systems::cleanup;
-use ui::LevelCompleteItem;
+use components::*;
 
 fn main() {
     App::new()

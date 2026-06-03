@@ -2,6 +2,8 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 use crate::components::*;
 use crate::levels::level1::Level1;
+use crate::levels::level2::Level2;
+use crate::levels::level3::Level3;
 use crate::levels::Level;
 use crate::state::GameState;
 
@@ -38,7 +40,7 @@ pub fn setup_player(mut commands: Commands, current_level: Res<CurrentLevel>) {
 
 pub fn move_player(
     keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
+    _time: Res<Time>,
     mut query: Query<(&mut LinearVelocity, &ShapeHits, &mut JumpCount), With<Player>>,
     gravity: Res<Gravity>,
 ) {
@@ -121,7 +123,7 @@ pub fn hazard_death(
     for hazard_entity in &hazard_query {
         if collisions.contains(player_entity, hazard_entity) {
             deaths.0 += 1;
-            if deaths.0 >= 10 {
+            if deaths.0 >= 3 {
                 next_state.set(GameState::GameOver);
                 return;
             }

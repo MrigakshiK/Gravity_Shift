@@ -20,7 +20,7 @@ pub fn setup_player(mut commands: Commands) {
         RigidBody::Dynamic,
         Collider::rectangle(40.0, 40.0),
         LockedAxes::ROTATION_LOCKED,
-        Friction::new(0.0),
+        Friction::new(0.5), // some friction so we don't slide forever on flat ground
         ShapeCaster::new(
             Collider::rectangle(36.0, 4.0),
             Vec2::ZERO,
@@ -45,9 +45,12 @@ pub fn move_player(
         velocity.x = -speed;
     } else if keys.pressed(KeyCode::KeyD) || keys.pressed(KeyCode::ArrowRight) {
         velocity.x = speed;
-    } else {
-        velocity.x = 0.0;
+    } else if !ground_hits.is_empty() {
+        // grounded + no input = decelerate, not instant stop
+        // this lets platform velocity carry through
+        velocity.x *= 0.75;
     }
+    // in the air with no input = don't touch x at all
 
     if !ground_hits.is_empty() {
         jump_count.0 = 2;
@@ -152,9 +155,11 @@ pub fn check_goal(
 
 pub fn move_platforms(
     time: Res<Time>,
-    mut query: Query<(&mut Transform, &mut MovingPlatform)>,
+    mut query: Query<(&mut MovingPlatform, &mut LinearVelocity)>,
 ) {
-    for (mut transform, mut platform) in &mut query {
+    for (mut platform, mut velocity) in &mut query {
+        let prev_t = platform.t;
+
         if platform.forward {
             platform.t += platform.speed * time.delta_secs();
             if platform.t >= 1.0 {
@@ -169,8 +174,15 @@ pub fn move_platforms(
             }
         }
 
-        let pos = platform.start.lerp(platform.end, platform.t);
-        transform.translation.x = pos.x;
-        transform.translation.y = pos.y;
+        let current_pos = platform.start.lerp(platform.end, platform.t);
+        let prev_pos = platform.start.lerp(platform.end, prev_t);
+        let delta = current_pos - prev_pos;
+
+        // velocity = how far we moved this frame / how long the frame took
+        velocity.0 = if time.delta_secs() > 0.0 {
+            delta / time.delta_secs()
+        } else {
+            Vec2::ZERO
+        };
     }
 }

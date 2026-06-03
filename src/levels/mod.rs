@@ -76,7 +76,8 @@ pub fn spawn_moving_platform(
             ..default()
         },
         Transform::from_xyz(x, y, 0.0),
-        RigidBody::Kinematic,   // not Static — avian moves it but it's not floppy
+        RigidBody::Kinematic,
+        LinearVelocity::ZERO,
         Collider::rectangle(w, h),
     ));
 }

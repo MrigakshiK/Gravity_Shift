@@ -18,17 +18,21 @@ fn main() {
         .add_plugins(PhysicsPlugins::default())
         .insert_resource(Gravity(Vec2::NEG_Y * 1800.0))
         .init_resource::<Deaths>()
+        .init_resource::<CurrentLevel>()
         .init_state::<GameState>()
         // always present
         .add_systems(Startup, (ui::setup_camera, ui::setup_hud))
         // state enter
         .add_systems(OnEnter(GameState::MainMenu), ui::setup_main_menu)
+        .add_systems(OnEnter(GameState::LevelSelect), ui::setup_level_select)
         .add_systems(OnEnter(GameState::Playing),  player::setup_player)
         .add_systems(OnEnter(GameState::LevelComplete), ui::setup_level_complete)
         .add_systems(OnEnter(GameState::GameOver),  ui::setup_game_over)
         
+        
         // state exit — cleanup everything tagged for that state
         .add_systems(OnExit(GameState::MainMenu), cleanup::<MenuItem>)
+        .add_systems(OnExit(GameState::LevelSelect), cleanup::<LevelSelectItem>)
         .add_systems(OnExit(GameState::Playing),  (cleanup::<Player>, cleanup::<LevelEntity>))
         .add_systems(OnExit(GameState::LevelComplete),  (
             cleanup::<LevelCompleteItem>,
@@ -53,6 +57,7 @@ fn main() {
         )
         // menu input
         .add_systems(Update, ui::main_menu_input.run_if(in_state(GameState::MainMenu)))
+        .add_systems(Update, ui::level_select_input.run_if(in_state(GameState::LevelSelect)))
         .add_systems(Update, ui::level_complete_input.run_if(in_state(GameState::LevelComplete)))
         .add_systems(Update, ui::game_over_input.run_if(in_state(GameState::GameOver)))
         .run();

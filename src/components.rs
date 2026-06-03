@@ -18,6 +18,12 @@ pub struct DeathText;
 #[derive(Component)]
 pub struct MenuItem;
 
+#[derive(Resource, Default)]
+pub struct CurrentLevel(pub usize);  // 0-indexed
+
+#[derive(Component)]
+pub struct LevelSelectItem;
+
 #[derive(Component)]
 pub struct GameOverItem;
 

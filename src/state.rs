@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub enum GameState {
     #[default]
     MainMenu,
+    LevelSelect,
     Playing,
     LevelComplete,
     GameOver,

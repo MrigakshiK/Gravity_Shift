@@ -90,7 +90,7 @@ pub fn respawn_player(
 
     if transform.translation.y.abs() > DEATH_Y {
         deaths.0 += 1;
-        if deaths.0 >= 10 {
+        if deaths.0 >= 3 {
             next_state.set(GameState::GameOver);
             return;
         }

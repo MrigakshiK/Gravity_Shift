@@ -42,5 +42,8 @@ pub struct MovingPlatform {
     pub forward: bool,   // direction of travel
 }
 
+#[derive(Component)]
+pub struct LevelButton(pub usize);
+
 pub const SPAWN_POS: Vec3 = Vec3::new(0.0, 150.0, 0.0);
 pub const DEATH_Y: f32 = 400.0;

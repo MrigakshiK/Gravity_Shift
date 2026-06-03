@@ -5,8 +5,13 @@ use crate::levels::level1::Level1;
 use crate::levels::Level;
 use crate::state::GameState;
 
-pub fn setup_player(mut commands: Commands) {
-    Level1.spawn(&mut commands);
+pub fn setup_player(mut commands: Commands, current_level: Res<CurrentLevel>) {
+    match current_level.0 {
+        0 => Level1.spawn(&mut commands),
+        1 => Level2.spawn(&mut commands),
+        2 => Level3.spawn(&mut commands),
+        _ => Level1.spawn(&mut commands),
+    }
 
     commands.spawn((
         Player,
@@ -20,7 +25,7 @@ pub fn setup_player(mut commands: Commands) {
         RigidBody::Dynamic,
         Collider::rectangle(40.0, 40.0),
         LockedAxes::ROTATION_LOCKED,
-        Friction::new(0.5), // some friction so we don't slide forever on flat ground
+        Friction::new(0.5),
         ShapeCaster::new(
             Collider::rectangle(36.0, 4.0),
             Vec2::ZERO,
@@ -143,11 +148,13 @@ pub fn check_goal(
     goal_query: Query<Entity, With<GoalTile>>,
     collisions: Res<Collisions>,
     mut next_state: ResMut<NextState<GameState>>,
+    mut current_level: ResMut<CurrentLevel>,
 ) {
     let Ok(player) = player_query.get_single() else { return };
 
     for goal in &goal_query {
         if collisions.contains(player, goal) {
+            current_level.0 += 1;
             next_state.set(GameState::LevelComplete);
         }
     }

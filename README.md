@@ -1,6 +1,6 @@
 # Gravity Shift
 
-A 2D precision platformer built in Rust using the [Bevy](https://bevyengine.org/) game engine. Flip gravity to navigate hazards, ride moving platforms, and reach the goal tile across three increasingly difficult levels.
+A 2D precision platformer built in Rust using the [Bevy](https://bevyengine.org/) game engine. Fliping gravity to navigate hazards, ride moving platforms, and reach the goal tile across increasingly difficult levels(currently only 3 levels coded).
 
 ![Gameplay](assets/demo.gif)
 
